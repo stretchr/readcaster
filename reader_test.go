@@ -3,6 +3,7 @@ package readcaster
 import (
 	"github.com/stretchr/testify/assert"
 	"io"
+	"strings"
 	"testing"
 )
 
@@ -15,7 +16,9 @@ func TestReaderInterface(t *testing.T) {
 
 func TestReaderNewReader(t *testing.T) {
 
-	reader := newChanReader()
+	sourceReader := strings.NewReader("Test")
+	readcaster := New(sourceReader)
+	reader := newChanReader(readcaster)
 
 	if assert.NotNil(t, reader) {
 		assert.NotNil(t, reader.source)
