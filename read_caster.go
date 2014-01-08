@@ -20,8 +20,7 @@ func New(source io.Reader) *ReadCaster {
 // NewReader creates a new io.Reader capable of reading from the source
 // of the ReadCaster.
 func (c *ReadCaster) NewReader() io.Reader {
-	sourceChan := make(chan []byte)
-	r := newChanReader(sourceChan)
+	r := newChanReader()
 	c.readers = append(c.readers, r)
 	return r
 }

@@ -6,8 +6,8 @@ type chanReader struct {
 
 // NewReader creates a new Reader using the specified source channel to
 // read its data from.
-func newChanReader(source chan []byte) *chanReader {
-	return &chanReader{source: source}
+func newChanReader() *chanReader {
+	return &chanReader{source: make(chan []byte)}
 }
 
 func (r *chanReader) Read(to []byte) (int, error) {

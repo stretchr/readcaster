@@ -15,11 +15,10 @@ func TestReaderInterface(t *testing.T) {
 
 func TestReaderNewReader(t *testing.T) {
 
-	sourceChannel := make(chan []byte)
-	reader := newChanReader(sourceChannel)
+	reader := newChanReader()
 
 	if assert.NotNil(t, reader) {
-		assert.Equal(t, sourceChannel, reader.source)
+		assert.NotNil(t, reader.source)
 	}
 
 }

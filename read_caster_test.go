@@ -22,9 +22,7 @@ func TestNewReader(t *testing.T) {
 	c := New(source)
 
 	reader := c.NewReader().(*chanReader)
-	if assert.NotNil(t, reader) {
-		assert.NotNil(t, reader.source)
-	}
+	assert.NotNil(t, reader)
 
 	// ensure the reader was added to the readers array
 	if assert.Equal(t, 1, len(c.readers)) {
