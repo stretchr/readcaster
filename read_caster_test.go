@@ -21,8 +21,10 @@ func TestNewReader(t *testing.T) {
 	source := strings.NewReader("Hello from Stretchr")
 	c := New(source)
 
-	reader := c.NewReader()
-	assert.NotNil(t, reader)
+	reader := c.NewReader().(*chanReader)
+	if assert.NotNil(t, reader) {
+		assert.NotNil(t, reader.source)
+	}
 
 	// ensure the reader was added to the readers array
 	if assert.Equal(t, 1, len(c.readers)) {
