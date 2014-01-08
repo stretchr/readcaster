@@ -43,6 +43,7 @@ func (r *chanReader) Read(to []byte) (int, error) {
 	// if our destination is bigger than the buffer (or the same size)
 	// then we're finished with the buffer
 	if len(to) >= len(r.buf) && len(r.buf) != 0 {
+		// fill the destination with the entire buffer
 		count := copy(to, r.buf)
 		r.buf = nil
 		return count, nil
@@ -52,11 +53,19 @@ func (r *chanReader) Read(to []byte) (int, error) {
 	// subset.
 	if len(to) < len(r.buf) && len(r.buf) != 0 {
 
+		// fill the destination with data from the buffer
 		count := copy(to, r.buf[:len(to)])
+
+		log.Printf("Buffer is bigger than what is needed: %s (len = %d) to: %s", string(r.buf), len(r.buf), string(to))
+
+		// shrink the buffer down since we just read some
 		r.buf = r.buf[len(to):]
 
+				log.Printf("  Shrank buffer: %s (len = %d) to: %s", string(r.buf), len(r.buf), string(to))
+
+
 		if len(r.buf) == 0 {
-			return 0, io.EOF
+			r.buf = nil
 		}
 
 		log.Printf("Buffer is bigger than what is needed: %s (len = %d) to: %s", string(r.buf), len(r.buf), string(to))
