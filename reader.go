@@ -2,6 +2,7 @@ package readcaster
 
 import (
 	"io"
+	"log"
 	"sync"
 )
 
@@ -22,25 +23,44 @@ func newChanReader(caster *ReadCaster) *chanReader {
 // specified byte slice.
 func (r *chanReader) Read(to []byte) (int, error) {
 
-	r.once.Do(r.caster.read)
+	// make sure we have begun reading so the channels get filled up
+	r.once.Do(r.caster.beginReading)
 
 	if len(r.buf) == 0 || r.buf == nil {
 		// this will block until we get data
+		//
+		// @tylerb: this is OK unless the buffer gets shrunk down
+		// by the stuff around line 55.  In that case, it's finished but
+		// there's no way for it to know.
 		r.buf = <-r.source
 	}
 
+	// are we finished?
 	if len(r.buf) == 0 || r.buf == nil {
 		return 0, io.EOF
 	}
 
+	// if our destination is bigger than the buffer (or the same size)
+	// then we're finished with the buffer
 	if len(to) >= len(r.buf) && len(r.buf) != 0 {
 		count := copy(to, r.buf)
 		r.buf = nil
 		return count, nil
 	}
 
+	// if our buffer is bigger than the destination, then just copy the
+	// subset.
 	if len(to) < len(r.buf) && len(r.buf) != 0 {
+
 		count := copy(to, r.buf[:len(to)])
+		r.buf = r.buf[len(to):]
+
+		if len(r.buf) == 0 {
+			return 0, io.EOF
+		}
+
+		log.Printf("Buffer is bigger than what is needed: %s (len = %d) to: %s", string(r.buf), len(r.buf), string(to))
+
 		return count, nil
 	}
 

@@ -57,8 +57,8 @@ func (c *ReadCaster) ApproxMemoryUse() int {
 	return c.bufferSize * channelBacklogSize * len(c.readers)
 }
 
-// read begins reading data from In and sending it to the channels
-func (c *ReadCaster) read() {
+// beginReading begins reading data from In and sending it to the channels
+func (c *ReadCaster) beginReading() {
 	c.once.Do(func() {
 		go func() {
 			for {
