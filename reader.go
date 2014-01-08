@@ -16,7 +16,7 @@ type chanReader struct {
 // NewReader creates a new Reader using the specified source channel to
 // read its data from.
 func newChanReader(caster *ReadCaster) *chanReader {
-	return &chanReader{caster: caster, source: make(chan []byte, channelBacklogSize)}
+	return &chanReader{caster: caster, source: make(chan []byte, caster.backlogSize)}
 }
 
 // Read satisfies io.Reader and writes data from the source into the
@@ -61,8 +61,7 @@ func (r *chanReader) Read(to []byte) (int, error) {
 		// shrink the buffer down since we just read some
 		r.buf = r.buf[len(to):]
 
-				log.Printf("  Shrank buffer: %s (len = %d) to: %s", string(r.buf), len(r.buf), string(to))
-
+		log.Printf("  Shrank buffer: %s (len = %d) to: %s", string(r.buf), len(r.buf), string(to))
 
 		if len(r.buf) == 0 {
 			r.buf = nil

@@ -12,7 +12,7 @@ func TestNew(t *testing.T) {
 	c := New(source)
 
 	assert.NotNil(t, c)
-	assert.Equal(t, c.In, source)
+	assert.Equal(t, c.in, source)
 	assert.Equal(t, c.bufferSize, defaultBufferSize)
 
 }
@@ -20,35 +20,37 @@ func TestNew(t *testing.T) {
 func TestNewSize(t *testing.T) {
 
 	source := strings.NewReader("Hello from Stretchr")
-	c := NewSize(source, 25)
+	c := NewSize(source, 25, 5)
 
 	assert.NotNil(t, c)
-	assert.Equal(t, c.In, source)
+	assert.Equal(t, c.in, source)
 	assert.Equal(t, c.bufferSize, 25)
+	assert.Equal(t, c.backlogSize, 5)
 
 }
 
-func TestBufferSize(t *testing.T) {
+func TestSizeGetters(t *testing.T) {
 
 	source := strings.NewReader("Hello from Stretchr")
-	c := NewSize(source, 25)
+	c := NewSize(source, 25, 5)
 
 	assert.NotNil(t, c)
-	assert.Equal(t, c.In, source)
+	assert.Equal(t, c.in, source)
 	assert.Equal(t, c.BufferSize(), 25)
+	assert.Equal(t, c.BacklogSize(), 5)
 
 }
 
 func TestApproxMemoryUse(t *testing.T) {
 
 	source := strings.NewReader("Hello from Stretchr")
-	c := NewSize(source, 25)
+	c := NewSize(source, 25, 5)
 
 	c.NewReader()
 	c.NewReader()
 	c.NewReader()
 
-	assert.Equal(t, c.ApproxMemoryUse(), 25*10*3)
+	assert.Equal(t, c.ApproxMemoryUse(), 25*5*3)
 
 }
 
