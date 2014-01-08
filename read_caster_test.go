@@ -24,4 +24,9 @@ func TestNewReader(t *testing.T) {
 	reader := c.NewReader()
 	assert.NotNil(t, reader)
 
+	// ensure the reader was added to the readers array
+	if assert.Equal(t, 1, len(c.readers)) {
+		assert.Equal(t, reader, c.readers[0])
+	}
+
 }

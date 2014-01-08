@@ -5,7 +5,10 @@ import (
 )
 
 type ReadCaster struct {
+	// In represents the source io.Reader where this ReadCaster will read from.
 	In io.Reader
+	// readers are all the Readers that will be reading from this ReadCaster.
+	readers []*Reader
 }
 
 // New creates a new ReadCaster that will allow multiple io.Readers to read
@@ -17,5 +20,7 @@ func New(source io.Reader) *ReadCaster {
 // NewReader creates a new io.Reader capable of reading from the source
 // of the ReadCaster.
 func (c *ReadCaster) NewReader() *Reader {
-	return &Reader{}
+	r := &Reader{}
+	c.readers = append(c.readers, r)
+	return r
 }
