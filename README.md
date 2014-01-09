@@ -1,6 +1,6 @@
 # ReadCaster
 
-ReadCaster is a go package (for Golang) for elegantly broadcasting the data from one io.Reader source to many io.Readers in a memory efficient way.
+ReadCaster is a go package (for Golang) for elegantly broadcasting the data from one io.Reader source to many `io.Readers` in a memory efficient way.
 
   * Jump straight into the [API Documentation](http://godoc.org/github.com/stretchr/readcaster)
 
