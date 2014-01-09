@@ -73,3 +73,7 @@ Calculating the `ApproxMemoryUse()` is as simple as:
 So for three readers at the default settings, it would be:
 
     4096 * 10 * 3 = 120kb
+
+If the readers are as quick as the ReadCaster, then in fact none of the backlog will be used.  And the memory usage could actually be calculated as:
+
+    bytesUsed := bufferSize * numberOfReaders
