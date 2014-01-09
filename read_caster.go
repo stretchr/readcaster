@@ -48,7 +48,7 @@ func New(source io.Reader) *ReadCaster {
 //
 // By default, the bufferSize is 4096 with a backlog of 10.
 func NewSize(source io.Reader, bufferSize, backlogSize int) *ReadCaster {
-	return &ReadCaster{in: source, bufferSize: bufferSize}
+	return &ReadCaster{in: source, bufferSize: bufferSize, backlogSize: backlogSize}
 }
 
 // NewReader creates a new io.Reader capable of reading from the source
