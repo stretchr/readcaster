@@ -2,7 +2,6 @@ package readcaster
 
 import (
 	"io"
-	"log"
 	"sync"
 )
 
@@ -26,7 +25,7 @@ func (r *chanReader) Read(to []byte) (int, error) {
 	// make sure we have begun reading so the channels get filled up
 	r.once.Do(r.caster.beginReading)
 
-	if len(r.buf) == 0 || r.buf == nil {
+	if len(r.buf) == 0 {
 		// this will block until we get data
 		//
 		// @tylerb: this is OK unless the buffer gets shrunk down
@@ -36,7 +35,7 @@ func (r *chanReader) Read(to []byte) (int, error) {
 	}
 
 	// are we finished?
-	if len(r.buf) == 0 || r.buf == nil {
+	if len(r.buf) == 0 {
 		return 0, io.EOF
 	}
 
@@ -56,18 +55,12 @@ func (r *chanReader) Read(to []byte) (int, error) {
 		// fill the destination with data from the buffer
 		count := copy(to, r.buf[:len(to)])
 
-		log.Printf("Buffer is bigger than what is needed: %s (len = %d) to: %s", string(r.buf), len(r.buf), string(to))
-
 		// shrink the buffer down since we just read some
 		r.buf = r.buf[len(to):]
-
-		log.Printf("  Shrank buffer: %s (len = %d) to: %s", string(r.buf), len(r.buf), string(to))
 
 		if len(r.buf) == 0 {
 			r.buf = nil
 		}
-
-		log.Printf("Buffer is bigger than what is needed: %s (len = %d) to: %s", string(r.buf), len(r.buf), string(to))
 
 		return count, nil
 	}
