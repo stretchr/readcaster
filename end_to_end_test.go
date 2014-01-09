@@ -2,8 +2,8 @@ package readcaster
 
 import (
 	"github.com/stretchr/testify/assert"
+	"io"
 	"io/ioutil"
-	"log"
 	"strings"
 	"sync"
 	"testing"
@@ -85,9 +85,8 @@ func TestEndToEndReadAByteAtATime(t *testing.T) {
 		for {
 			buf := make([]byte, 1)
 			n, err = r1.Read(buf)
-			log.Printf("Read: %s", buf)
 			count += n
-			if count > len(source) {
+			if count > len(source) || err == io.EOF {
 				break
 			}
 			if assert.NoError(t, err) {
@@ -105,9 +104,8 @@ func TestEndToEndReadAByteAtATime(t *testing.T) {
 		for {
 			buf := make([]byte, 1)
 			n, err = r2.Read(buf)
-			log.Printf("Read: %s", buf)
 			count += n
-			if count > len(source) {
+			if count > len(source) || err == io.EOF {
 				break
 			}
 			if assert.NoError(t, err) {
