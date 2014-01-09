@@ -27,6 +27,13 @@ func TestNewSize(t *testing.T) {
 	assert.Equal(t, c.bufferSize, 25)
 	assert.Equal(t, c.backlogSize, 5)
 
+	assert.Panics(t, func() {
+		NewSize(source, 0, 1)
+	}, "Zero buffer size")
+	assert.Panics(t, func() {
+		NewSize(source, -1, 5)
+	}, "Nagative buffer size")
+
 }
 
 func TestSizeGetters(t *testing.T) {

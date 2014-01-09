@@ -46,6 +46,11 @@ func New(source io.Reader) *ReadCaster {
 // NewSize creates a new ReadCaster that will allow multiple io.Readers to read
 // from the specified source, while also setting the BufferSize() and BacklogSize().
 func NewSize(source io.Reader, bufferSize, backlogSize int) *ReadCaster {
+
+	if bufferSize < 1 {
+		panic("readcaster: bufferSize must be greater than zero.")
+	}
+
 	return &ReadCaster{in: source, bufferSize: bufferSize, backlogSize: backlogSize}
 }
 
