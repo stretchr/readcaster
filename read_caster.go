@@ -96,18 +96,25 @@ func (c *ReadCaster) beginReading() {
 	c.once.Do(func() {
 		go func() {
 			for {
+
+				// make a buffer
 				buf := make([]byte, c.bufferSize)
 				n, err := c.in.Read(buf)
 				if err != nil || n == 0 {
+					// close the channels - we're done
 					for _, reader := range c.readers {
 						close(reader.source)
 					}
 					break
 				}
+
+				// send the content from the buffer to the channels
 				for _, reader := range c.readers {
 					reader.source <- buf[:n]
 				}
+
 			}
+
 		}()
 	})
 }
