@@ -45,8 +45,6 @@ func New(source io.Reader) *ReadCaster {
 
 // NewSize creates a new ReadCaster that will allow multiple io.Readers to read
 // from the specified source, while also setting the BufferSize() and BacklogSize().
-//
-// By default, the bufferSize is 4096 with a backlog of 10.
 func NewSize(source io.Reader, bufferSize, backlogSize int) *ReadCaster {
 	return &ReadCaster{in: source, bufferSize: bufferSize, backlogSize: backlogSize}
 }
