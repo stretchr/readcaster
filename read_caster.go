@@ -51,6 +51,9 @@ func NewSize(source io.Reader, bufferSize, backlogSize int) *ReadCaster {
 
 // NewReader creates a new io.Reader capable of reading from the source
 // of the ReadCaster.
+//
+// The readers returned from this method must be passed into a go routine
+// in order for reading to commence to avoid the chance of deadlock.
 func (c *ReadCaster) NewReader() io.Reader {
 	r := newChanReader(c)
 	c.readers = append(c.readers, r)
