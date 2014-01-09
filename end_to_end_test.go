@@ -123,3 +123,50 @@ func TestEndToEndReadAByteAtATime(t *testing.T) {
 	assert.Equal(t, source, string(r2bytes), "Reading a byte at a time should still work.")
 
 }
+
+func TestEndToEndOneReaderNeverReads(t *testing.T) {
+
+	source := "Hello from Stretchr."
+	sourceReader := strings.NewReader(source)
+	caster := NewSize(sourceReader, 2, 1)
+
+	r1 := caster.NewReader()
+	r2 := caster.NewReader()
+
+	var r1bytes []byte
+	var r2bytes []byte
+
+	// read all in all readers
+	var allread sync.WaitGroup
+	allread.Add(2)
+	go func() {
+		var err error
+		var n int
+		var count int
+		for {
+			buf := make([]byte, 1)
+			n, err = r1.Read(buf)
+			count += n
+			if count > len(source) || err == io.EOF {
+				break
+			}
+			if assert.NoError(t, err) {
+				assert.Equal(t, n, 1)
+				r1bytes = append(r1bytes, buf[:]...)
+			}
+		}
+		allread.Done()
+	}()
+
+	go func() {
+		r2.Read(nil)
+		allread.Done()
+	}()
+
+	allread.Wait() // wait for all readers to finish
+
+	// make sure all bytes are present and correct
+	assert.Equal(t, source, string(r1bytes), "Reading a byte at a time should still work.")
+	assert.Equal(t, "", string(r2bytes), "Never reading should be OK")
+
+}
