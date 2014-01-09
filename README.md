@@ -52,7 +52,7 @@ ReadCaster reads a buffer load of data from the source, and channels it to each 
     // and we have only read from one source.
     //
     // And the memory footprint is predictable and controlable.
-    fmt.Sprintf("I only used %dK memory", caster.ApproxMemoryUse())
+    fmt.Sprintf("I only used %dK memory", caster.MaxMemoryUse())
 
 ### Controlling memory
 
@@ -64,7 +64,7 @@ To be specific about the amount of memory you plan to use, you may use the `NewS
   * `bufferSize` - the size (in bytes) of each buffer (default is `4096` or 4kb)
   * `backlogSize` - the number of buffers that will be queued up for each reader before the reader gets blocked if other readers are being slow (default is `10`)
 
-Calculating the `ApproxMemoryUse()` is as simple as:
+Calculating the `MaxMemoryUse()` is as simple as:
 
     bytesUsed := bufferSize * backlogSize * numberOfReaders
 

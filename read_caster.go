@@ -81,13 +81,13 @@ func (c *ReadCaster) BacklogSize() int {
 	return c.backlogSize
 }
 
-// ApproxMemoryUse calculates the maximum amount of memory (in bytes)
+// MaxMemoryUse calculates the maximum amount of memory (in bytes)
 // that will be used by this ReadCaster and its Readers.
 //
 // It is calcualted by finding the product of the BufferSize(), the
 // BacklogSize() and the number of Readers created by calling
 // NewReader.
-func (c *ReadCaster) ApproxMemoryUse() int {
+func (c *ReadCaster) MaxMemoryUse() int {
 	return c.bufferSize * c.backlogSize * len(c.readers)
 }
 

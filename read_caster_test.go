@@ -57,7 +57,7 @@ func TestApproxMemoryUse(t *testing.T) {
 	c.NewReader()
 	c.NewReader()
 
-	assert.Equal(t, c.ApproxMemoryUse(), 25*5*3)
+	assert.Equal(t, c.MaxMemoryUse(), 25*5*3)
 
 }
 
