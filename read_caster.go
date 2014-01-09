@@ -3,6 +3,7 @@ package readcaster
 import (
 	"io"
 	"sync"
+	"time"
 )
 
 const (
@@ -13,6 +14,9 @@ const (
 	// the readers to read.  This allows readers to read at their own pace before
 	// the reads get blocked waiting for other readers to catch up.
 	defaultBacklogSize int = 10
+	// defaultReaderTimeout is the default duration that the caster will wait
+	// before killing a slow/dead reader.
+	defaultReaderTimeout time.Duration = 1 * time.Second
 )
 
 // ReadCaster allows you to spawn many io.Readers using NewReader() that may each
@@ -28,11 +32,17 @@ type ReadCaster struct {
 	readers []*chanReader
 	// once is used to control the initiation of the reading process
 	once sync.Once
+	// startedReading is whether one or more readers have already started reading
+	// from this ReadCaster.  If they have, configuration becomes locked down.
+	startedReading bool
 	// bufferSize is the length of the internal buffer.
 	bufferSize int
 	// backlogSize is the number of buffers to keep in a queue ready for the
 	// readers to read.
 	backlogSize int
+	// readerTimeout is the duration that the caster will wait
+	// before killing a slow/dead reader.
+	readerTimeout time.Duration
 }
 
 // New creates a new ReadCaster that will allow multiple io.Readers to read
@@ -51,7 +61,12 @@ func NewSize(source io.Reader, bufferSize, backlogSize int) *ReadCaster {
 		panic("readcaster: bufferSize must be greater than zero.")
 	}
 
-	return &ReadCaster{in: source, bufferSize: bufferSize, backlogSize: backlogSize}
+	return &ReadCaster{
+		in:            source,
+		bufferSize:    bufferSize,
+		backlogSize:   backlogSize,
+		readerTimeout: defaultReaderTimeout,
+	}
 }
 
 // NewReader creates a new io.Reader capable of reading from the source
@@ -63,6 +78,14 @@ func (c *ReadCaster) NewReader() io.Reader {
 	r := newChanReader(c)
 	c.readers = append(c.readers, r)
 	return r
+}
+
+// ensureCanChangeConfig panics if one or more readers have begun reading
+// from this ReadCaster.
+func (c *ReadCaster) ensureCanChangeConfig() {
+	if c.startedReading {
+		panic("readcaster: Cannot change configuration of a ReadCaster once Readers have begun reading.  Ensure all configuration occurrs before generating readers with NewReader() calls.")
+	}
 }
 
 // BufferSize gets the size of the internal buffer that is used to hold
@@ -91,9 +114,19 @@ func (c *ReadCaster) MaxMemoryUse() int {
 	return c.bufferSize * c.backlogSize * len(c.readers)
 }
 
+func (c *ReadCaster) ReaderTimeout() time.Duration {
+	return c.readerTimeout
+}
+
+func (c *ReadCaster) SetReaderTimeout(duration time.Duration) {
+	c.ensureCanChangeConfig()
+	c.readerTimeout = duration
+}
+
 // beginReading begins reading data from In and sending it to the channels
 func (c *ReadCaster) beginReading() {
 	c.once.Do(func() {
+		c.startedReading = true
 		go func() {
 			for {
 

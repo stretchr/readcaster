@@ -36,10 +36,6 @@ func (r *chanReader) Read(to []byte) (int, error) {
 
 	if len(r.buf) == 0 {
 		// this will block until we get data
-		//
-		// @tylerb: this is OK unless the buffer gets shrunk down
-		// by the stuff around line 55.  In that case, it's finished but
-		// there's no way for it to know.
 		r.buf = <-r.source
 	}
 
