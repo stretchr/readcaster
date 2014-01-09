@@ -43,6 +43,9 @@ type ReadCaster struct {
 	// readerTimeout is the duration that the caster will wait
 	// before killing a slow/dead reader.
 	readerTimeout time.Duration
+	// Progress is the channel on which read progress is sent. Each
+	// message to the channel is the total size read at that point.
+	Progress chan int
 }
 
 // New creates a new ReadCaster that will allow multiple io.Readers to read
@@ -66,6 +69,7 @@ func NewSize(source io.Reader, bufferSize, backlogSize int) *ReadCaster {
 		bufferSize:    bufferSize,
 		backlogSize:   backlogSize,
 		readerTimeout: defaultReaderTimeout,
+		Progress:      make(chan int),
 	}
 }
 
@@ -128,22 +132,44 @@ func (c *ReadCaster) beginReading() {
 	c.once.Do(func() {
 		c.startedReading = true
 		go func() {
+			totalBytesRead := 0
 			for {
-
 				// make a buffer
 				buf := make([]byte, c.bufferSize)
 				n, err := c.in.Read(buf)
+
+				totalBytesRead += n
+
+				select {
+				case c.Progress <- totalBytesRead:
+				default:
+				}
+
 				if err != nil || n == 0 {
 					// close the channels - we're done
 					for _, reader := range c.readers {
-						close(reader.source)
+						if !reader.hasTimedOut {
+							close(reader.source)
+						}
 					}
+					close(c.Progress)
 					break
 				}
 
 				// send the content from the buffer to the channels
+				timeout := time.NewTimer(c.readerTimeout)
 				for _, reader := range c.readers {
-					reader.source <- buf[:n]
+					if reader.hasTimedOut {
+						continue
+					}
+					select {
+					case reader.source <- buf[:n]:
+						continue
+					case <-timeout.C:
+						reader.hasTimedOut = true
+						close(reader.source)
+					}
+
 				}
 
 			}

@@ -4,6 +4,12 @@ import (
 	"io"
 )
 
+type ReaderTimedOutError struct{}
+
+func (e ReaderTimedOutError) Error() string {
+	return "Reader was timed out by the ReadCaster because it failed to Read quickly enough."
+}
+
 // chanReader is an io.Reader that reads from the channel receiving buffers
 // of data from the caster ReadCaster.
 type chanReader struct {
@@ -15,6 +21,9 @@ type chanReader struct {
 	source chan []byte
 	// buf is the most recent buffer of data received on the source channel.
 	buf []byte
+	// hasTimedOut is a flag determining if this reader has been killed by
+	// the caster because it wasn't quick enough to read.
+	hasTimedOut bool
 }
 
 // NewReader creates a new Reader using the specified source channel to
@@ -37,6 +46,10 @@ func (r *chanReader) Read(to []byte) (int, error) {
 	if len(r.buf) == 0 {
 		// this will block until we get data
 		r.buf = <-r.source
+	}
+
+	if r.hasTimedOut {
+		return 0, &ReaderTimedOutError{}
 	}
 
 	// are we finished?

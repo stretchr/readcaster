@@ -2,7 +2,9 @@ package readcaster
 
 import (
 	"github.com/stretchr/testify/assert"
+	"io/ioutil"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 )
@@ -106,5 +108,51 @@ func TestNewReader(t *testing.T) {
 	if assert.Equal(t, 1, len(c.readers)) {
 		assert.Equal(t, reader, c.readers[0])
 	}
+
+}
+
+func TestTotalBytesSentChannel(t *testing.T) {
+
+	sourceStr := "Hello from Stretchr"
+	source := strings.NewReader(sourceStr)
+	c := NewSize(source, 1, 1)
+
+	r1 := c.NewReader()
+
+	bytesRead := 0
+	go func() {
+		for read := range c.Progress {
+			bytesRead = read
+		}
+	}()
+
+	// read everything - then check the length
+	var wg sync.WaitGroup
+	wg.Add(1)
+	go func() {
+		var buf []byte = make([]byte, 1)
+		n, err := r1.Read(buf)
+		assert.NoError(t, err)
+		assert.Equal(t, n, 1, "Should have only read 1 byte")
+		wg.Done()
+	}()
+	wg.Wait()
+
+	// assert that we were just told 1 byte was read
+	assert.Equal(t, bytesRead, 1, "bytesRead after 1 byte was read")
+
+	wg.Add(1)
+
+	go func() {
+		var err error
+		// read the rest of it
+		_, err = ioutil.ReadAll(r1)
+		assert.NoError(t, err)
+		wg.Done()
+	}()
+	wg.Wait()
+
+	// assert that we were just told 1 byte was read
+	assert.Equal(t, bytesRead, len(sourceStr), "bytesRead after all bytes was read")
 
 }
