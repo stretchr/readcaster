@@ -192,7 +192,7 @@ func TestEndToEndOneReaderNeverReads(t *testing.T) {
 	caster := NewSize(sourceReader, 5, 1)
 
 	r1 := caster.NewReader()
-	r2 := caster.NewReader()
+	caster.NewReader()
 
 	var r1bytes []byte
 	var r2bytes []byte
@@ -200,6 +200,7 @@ func TestEndToEndOneReaderNeverReads(t *testing.T) {
 	// read all in all readers
 	var allread sync.WaitGroup
 	allread.Add(2)
+
 	go func() {
 		var err error
 		var n int
@@ -220,7 +221,6 @@ func TestEndToEndOneReaderNeverReads(t *testing.T) {
 	}()
 
 	go func() {
-		r2.Read(nil)
 		allread.Done()
 	}()
 
