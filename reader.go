@@ -4,6 +4,7 @@ import (
 	"io"
 )
 
+// ReaderTimedOutError is a custom error object for readers that have timed out.
 type ReaderTimedOutError struct{}
 
 func (e ReaderTimedOutError) Error() string {

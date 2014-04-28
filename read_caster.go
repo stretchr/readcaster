@@ -118,10 +118,14 @@ func (c *ReadCaster) MaxMemoryUse() int {
 	return c.bufferSize * c.backlogSize * len(c.readers)
 }
 
+// ReaderTimeout returns the current time.Duration at which a stagnant
+// reader will be killed.
 func (c *ReadCaster) ReaderTimeout() time.Duration {
 	return c.readerTimeout
 }
 
+// SetReaderTimeout sets the time.Duration after which a slow or stagnant
+// reader will be killed.
 func (c *ReadCaster) SetReaderTimeout(duration time.Duration) {
 	c.ensureCanChangeConfig()
 	c.readerTimeout = duration

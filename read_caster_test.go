@@ -1,12 +1,13 @@
 package readcaster
 
 import (
-	"github.com/stretchr/testify/assert"
 	"io/ioutil"
 	"strings"
 	"sync"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestNew(t *testing.T) {
@@ -130,7 +131,7 @@ func TestTotalBytesSentChannel(t *testing.T) {
 	var wg sync.WaitGroup
 	wg.Add(1)
 	go func() {
-		var buf []byte = make([]byte, 1)
+		var buf = make([]byte, 1)
 		n, err := r1.Read(buf)
 		assert.NoError(t, err)
 		assert.Equal(t, n, 1, "Should have only read 1 byte")

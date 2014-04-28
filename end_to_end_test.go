@@ -1,12 +1,13 @@
 package readcaster
 
 import (
-	"github.com/stretchr/testify/assert"
 	"io"
 	"io/ioutil"
 	"strings"
 	"sync"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 // TestEndToEndAllBuffers tests the concept with an ever-increasing buffer

@@ -1,16 +1,16 @@
 package readcaster
 
 import (
-	"github.com/stretchr/testify/assert"
-	"io"
 	"strings"
 	"sync"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestReaderInterface(t *testing.T) {
 
-	var ioreader io.Reader = new(chanReader)
+	var ioreader = new(chanReader)
 	assert.NotNil(t, ioreader)
 
 }
